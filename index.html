@@ -1,0 +1,2726 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ค้นหาคณะที่ใช่ (Guide2Go!)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f3fa;
+            /* สีพื้นหลัง body */
+            min-height: 100vh;
+            padding: 10px;
+            /*
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;*/
+        }
+
+        /* Loading Screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #71a1e9 0%, #bde3fb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            text-align: center;
+        }
+
+        #loadingTitle {
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 40px;
+        }
+
+        #loadingMascot {
+            width: min(120vw, 600px);
+            height: auto;
+            animation: mascotAppear 0.8s ease-out forwards,
+                mascotBounce 1.8s ease-in-out infinite 0.8s;
+        }
+
+        #loadingText {
+            margin-top: 35px;
+            font-size: 1.2em;
+            color: #e0dede;
+            font-weight: bold;
+        }
+
+        /* โผล่มาแบบ scale */
+        @keyframes mascotAppear {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* เด้งขึ้นลง พร้อมกระพริบตา */
+        @keyframes mascotBounce {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                content: url("img/7.png");
+                /* ตาเปิด */
+            }
+
+            45% {
+                transform: translateY(-15px) scale(1.05);
+                content: url("img/7.png");
+                /* ตาเปิด */
+            }
+
+            50% {
+                transform: translateY(-15px) scale(1.05);
+                content: url("img/7_blink.png");
+                /* ตาหลับ กระพริบ */
+            }
+
+            55% {
+                transform: translateY(-15px) scale(1.05);
+                content: url("img/7.png");
+                /* ตาเปิด */
+            }
+        }
+
+        /* จางหาย */
+        .fade-out {
+            animation: fadeOut 0.8s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 25px;
+            /* กรอบโค้ง */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #71a1e9 0%, #bde3fb 100%);
+            padding: 20px;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+            border-radius: 25px 25px 0 0;
+            /*
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;*/
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .language-toggle:hover {
+            background: white;
+            color: #4facfe;
+        }
+
+        .pathbot {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: -5px auto;
+            background: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            box-shadow: none;
+            /*
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 3s ease-in-out infinite;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);*/
+        }
+
+        .pathbot-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .pathbot-speech {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: #333;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .pathbot-speech::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid white;
+        }
+
+        .pathbot:hover .pathbot-speech {
+            opacity: 1;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /*
+        @keyframes blink {
+
+            0%,
+            90%,
+            100% {
+                content: '🤖';
+            }
+
+            95% {
+                content: '😊';
+            }
+        }*/
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: #f2f4f5;
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg,  #adccef 0%, #e5effc 100%);
+            color: #555;
+            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+            /*
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);*/
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-container {
+            background: linear-gradient(135deg, #8db1e0 0%, #c2d1ec 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .riasec-badge {
+            display: inline-block;
+            background: rgba(162, 195, 224, 0.336);
+            color: #ffffff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .option {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #555;
+        }
+
+        .option.selected {
+            background: linear-gradient(45deg, #adccef  0%, #e5effc 100%);
+            color: #555;
+            border-color: #5573a1;
+            /*
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;*/
+        }
+
+        .option-description {
+            font-size: 0.85em;
+            opacity: 0.8;
+            margin-top: 8px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb
+ 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .university-rank {
+            background: linear-gradient(to top, #759ff3 0%, #a2b6df 100%, #84a1db 100%, #a2b6df 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .tcas-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tcas-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #a1c4fd  0%, #c2e9fb 100%);
+            color: #555;
+            box-shadow: 0 5px 15px rgba(204, 226, 203, 0.3);
+            /*
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);*/
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #e2ebf0 0%, #cfd9df 100%);
+            color: #555;
+            box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+            /*
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.3);*/
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #a1c4fd  0%, #c2e9fb 100%);
+            color: #555;
+            box-shadow: 0 5px 15px rgba(216, 232, 245, 0.3);
+            /*background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            box-shadow: 0 5px 15px rgba(168, 237, 234, 0.3);*/
+        }
+
+        .history-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4facfe;
+        }
+
+        .history-date {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(45deg, #a3bded 0%, #6991c7 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .favorite-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .favorite-star {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #ffd700;
+            font-size: 1.5em;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #4facfe 0%, #92bcfa 100%);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-line {
+            background: #00B900;
+            color: white;
+        }
+
+        .share-facebook {
+            background: #1877F2;
+            color: white;
+        }
+
+        .share-qr {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 150px;
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4facfe;
+            margin: 10px 0;
+        }
+
+        .riasec-indicator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .riasec-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .riasec-r {
+            background: #e74c3c;
+        }
+
+        .riasec-i {
+            background: #3498db;
+        }
+
+        .riasec-a {
+            background: #f39c12;
+        }
+
+        .riasec-s {
+            background: #2ecc71;
+        }
+
+        .riasec-e {
+            background: #9b59b6;
+        }
+
+        .riasec-c {
+            background: #34495e;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 5px;
+                border-radius: 15px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .nav-tabs {
+                justify-content: stretch;
+            }
+
+            .nav-tab {
+                flex: 1;
+                text-align: center;
+                padding: 10px 8px;
+                font-size: 0.9em;
+            }
+
+            .pathbot-speech {
+                font-size: 0.8em;
+                min-width: 150px;
+                padding: 8px 12px;
+            }
+
+            .result-details {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                flex-direction: column;
+            }
+
+            .result-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .university-rank {
+                margin-left: 0;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .similar-faculties {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .similar-faculty-tag {
+            background: linear-gradient(45deg, #6183b4 0%, #3593d1 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .similar-faculty-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            margin: 50px 0;
+            padding: 40px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .university-info {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .world-rank {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen">
+        <div id="loadingTitle">ค้นหาคณะที่ใช่ (Guide2Go!)</div>
+        <img id="loadingMascot" src="img/7.png" alt="Mascot">
+        <div id="loadingText">กำลังโหลด...</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <button class="language-toggle" onclick="toggleLanguage()">EN/TH</button>
+            <h1 id="mainTitle">ค้นหาคณะที่ใช่ (Guide2Go!)</h1>
+            <p class="subtitle" id="subtitle">ระบบแนะนำวิทยาลัย คณะ และสาขาที่เหมาะกับคุณ ด้วยทฤษฎี RIASEC</p>
+
+            <div class="pathbot" onclick="pathbotClick()">
+                <img src="img/7.png" alt="Mascot" class="pathbot-img">
+                <div class="pathbot-speech" id="pathbotSpeech">สวัสดีค่ะ! มาค้นหาคณะที่ใช่กันเถอะ 🎓</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('quiz')" id="tab-quiz">แบบทดสอบ RIASEC</button>
+                <button class="nav-tab" onclick="showTab('results')" id="tab-results">ผลลัพธ์ของฉัน</button>
+                <button class="nav-tab" onclick="showTab('compare')" id="tab-compare">เปรียบเทียบ</button>
+                <button class="nav-tab" onclick="showTab('favorites')" id="tab-favorites">รายการโปรด</button>
+            </div>
+
+            <!-- Quiz Tab -->
+            <div id="quiz-tab" class="tab-content active">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+
+                <div id="quizContainer">
+                    <!-- Questions will be dynamically loaded here -->
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">ถัดไป</button>
+                    <button class="btn btn-success hidden" onclick="showResults()"
+                        id="showResultsBtn">ดูผลลัพธ์</button>
+                    <button class="btn btn-secondary" onclick="resetQuiz()" id="resetBtn">เริ่มใหม่</button>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div id="results-tab" class="tab-content">
+                <div id="currentResult"></div>
+                <div id="historyResults"></div>
+            </div>
+
+            <!-- Compare Tab -->
+            <div id="compare-tab" class="tab-content">
+                <div id="compareContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p id="compareMsg">ทำแบบทดสอบหลายครั้งเพื่อเปรียบเทียบผลลัพธ์</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorites Tab -->
+            <div id="favorites-tab" class="tab-content">
+                <div id="favoritesContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⭐</div>
+                        <p id="favoritesMsg">ยังไม่มีคณะในรายการโปรด</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="qrTitle">QR Code สำหรับแชร์</h3>
+            <div id="qrCode" style="margin: 20px 0;"></div>
+            <p id="qrDesc">สแกน QR Code เพื่อดูผลลัพธ์</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentLanguage = 'th';
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizResults = [];
+        let favoriteResults = [];
+
+        // RIASEC-based questions and comprehensive university data
+        const facultyData = {
+            th: {
+                questions: [
+                    {
+                        question: "คุณชอบกิจกรรมแบบใด?",
+                        riasec: "Realistic",
+                        options: [
+                            {
+                                text: "งานช่าง ซ่อมแซม หรือสร้างสิ่งต่าง ๆ ด้วยมือ",
+                                description: "เช่น ซ่อมเครื่องจักร ประกอบอุปกรณ์ งานฝีมือ",
+                                weight: { engineering: 3, architecture: 2, agriculture: 2, applied_arts: 1 },
+                                riasec: "R"
+                            },
+                            {
+                                text: "วิจัย วิเคราะห์ และค้นหาคำตอบ",
+                                description: "เช่น ทำการทดลอง วิเคราะห์ข้อมูล แก้ปัญหาเชิงตรรกะ",
+                                weight: { science: 3, medicine: 2, pharmacy: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "สร้างสรรค์งานศิลปะ ดนตรี หรือการเขียน",
+                                description: "เช่น การวาดภาพ แต่งเพลง เขียนนิยาย ออกแบบ",
+                                weight: { arts: 3, architecture: 2, humanities: 2, communication: 2 },
+                                riasec: "A"
+                            },
+                            {
+                                text: "ช่วยเหลือ สอน หรือให้คำปรึกษาผู้อื่น",
+                                description: "เช่น การสอน การดูแลผู้ป่วย การให้คำแนะนำ",
+                                weight: { education: 3, medicine: 2, nursing: 3, social: 2 },
+                                riasec: "S"
+                            }
+                        ]
+                    },
+                    {
+                        question: "สิ่งใดที่คุณมีความสามารถมากที่สุด?",
+                        riasec: "Investigative",
+                        options: [
+                            {
+                                text: "คิดเลข วิเคราะห์ข้อมูล และแก้โจทย์คณิตศาสตร์",
+                                description: "ความสามารถด้านตรรกะและการคำนวณ",
+                                weight: { science: 3, engineering: 2, economics: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "สื่อสาร พูดในที่สาธารณะ และโน้มน้าวใจผู้อื่น",
+                                description: "ทักษะการสื่อสารและความเป็นผู้นำ",
+                                weight: { business: 3, law: 2, communication: 3, political: 2 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "จัดระเบียบ วางแผน และทำงานอย่างละเอียดรอบคอบ",
+                                description: "ความสามารถด้านการบริหารจัดการ",
+                                weight: { business: 2, management: 3, accounting: 3, law: 1 },
+                                riasec: "C"
+                            },
+                            {
+                                text: "เข้าใจและเห็นใจความรู้สึกของผู้อื่น",
+                                description: "ความสามารถด้านการเข้าใจจิตใจมนุษย์",
+                                weight: { social: 3, education: 2, psychology: 3, nursing: 2 },
+                                riasec: "S"
+                            }
+                        ]
+                    },
+                    {
+                        question: "คุณชอบเรียนรู้สิ่งใดมากที่สุด?",
+                        riasec: "Artistic",
+                        options: [
+                            {
+                                text: "ศิลปะ การออกแบบ และสิ่งที่สวยงาม",
+                                description: "สุนทรียศาสตร์และความคิดสร้างสรรค์",
+                                weight: { arts: 3, architecture: 2, design: 3, humanities: 1 },
+                                riasec: "A"
+                            },
+                            {
+                                text: "วิทยาศาสตร์ เทคโนโลยี และการค้นพบใหม่ ๆ",
+                                description: "ความรู้ด้านวิทยาศาสตร์และเทคโนโลยี",
+                                weight: { science: 3, engineering: 2, it: 3, medicine: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "ประวัติศาสตร์ วัฒนธรรม และสังคม",
+                                description: "ความเข้าใจในมนุษย์และสังคม",
+                                weight: { humanities: 3, social: 2, political: 2, education: 1 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "ธุรกิจ การเงิน และเศรษฐกิจ",
+                                description: "ความรู้ด้านการบริหารและเศรษฐศาสตร์",
+                                weight: { business: 3, economics: 3, management: 2, accounting: 2 },
+                                riasec: "E"
+                            }
+                        ]
+                    },
+                    {
+                        question: "คุณมักจะเป็นคนที่?",
+                        riasec: "Social",
+                        options: [
+                            {
+                                text: "ชอบทำงานคนเดียว เน้นความแม่นยำและรายละเอียด",
+                                description: "บุคลิกที่ชอบการทำงานอิสระ",
+                                weight: { science: 2, it: 3, accounting: 3, research: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "ชอบทำงานเป็นทีม และสนใจคนรอบข้าง",
+                                description: "บุคลิกที่เป็นมิตรและชอบร่วมมือ",
+                                weight: { social: 3, education: 2, business: 2, nursing: 2 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "ชอบเป็นผู้นำ และตัดสินใจเร็ว",
+                                description: "บุคลิกผู้นำที่กล้าตัดสินใจ",
+                                weight: { business: 3, management: 3, law: 2, political: 2 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "ชอบสำรวจและลองสิ่งใหม่ ๆ",
+                                description: "บุคลิกที่ชอบผจญภัยและสร้างสรรค์",
+                                weight: { arts: 2, journalism: 3, tourism: 2, communication: 2 },
+                                riasec: "A"
+                            }
+                        ]
+                    },
+                    {
+                        question: "สภาพแวดล้อมการทำงานที่คุณชอบ?",
+                        riasec: "Enterprising",
+                        options: [
+                            {
+                                text: "สำนักงาน ห้องประชุม และการนำเสนอ",
+                                description: "สภาพแวดล้อมทางธุรกิจและการจัดการ",
+                                weight: { business: 3, management: 3, economics: 2, law: 1 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "ห้องปฏิบัติการ โรงงาน หรือสนาม",
+                                description: "สภาพแวดล้อมการทำงานภาคปฏิบัติ",
+                                weight: { science: 3, engineering: 3, agriculture: 2, medicine: 1 },
+                                riasec: "R"
+                            },
+                            {
+                                text: "โรงเรียน โรงพยาบาล หรือชุมชน",
+                                description: "สภาพแวดล้อมการให้บริการสังคม",
+                                weight: { education: 3, medicine: 2, nursing: 3, social: 2 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "สตูดิโอ ห้องออกแบบ หรือพื้นที่สร้างสรรค์",
+                                description: "สภาพแวดล้อมที่เอื้อต่อความคิดสร้างสรรค์",
+                                weight: { arts: 3, architecture: 3, design: 3, communication: 1 },
+                                riasec: "A"
+                            }
+                        ]
+                    },
+                    {
+                        question: "เมื่อเผชิญปัญหา คุณมักจะ?",
+                        riasec: "Conventional",
+                        options: [
+                            {
+                                text: "วิเคราะห์อย่างเป็นระบบและหาข้อมูลเพิ่มเติม",
+                                description: "แนวทางการแก้ปัญหาแบบวิทยาศาสตร์",
+                                weight: { science: 3, research: 3, medicine: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "ปรึกษาคนอื่นและหาทางออกร่วมกัน",
+                                description: "แนวทางการแก้ปัญหาแบบร่วมมือ",
+                                weight: { social: 3, education: 2, business: 2, management: 1 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "ใช้กฎเกณฑ์และขั้นตอนที่ชัดเจน",
+                                description: "แนวทางการแก้ปัญหาแบบระเบียบ",
+                                weight: { law: 3, accounting: 3, management: 2, public_admin: 2 },
+                                riasec: "C"
+                            },
+                            {
+                                text: "คิดนอกกรอบและหาวิธีใหม่ ๆ",
+                                description: "แนวทางการแก้ปัญหาแบบสร้างสรรค์",
+                                weight: { arts: 3, design: 3, communication: 2, entrepreneurship: 2 },
+                                riasec: "A"
+                            }
+                        ]
+                    }
+                ],
+                faculties: {
+                    // จุฬาลงกรณ์มหาวิทยาลัย - อันดับโลก 601-800
+                    engineering: {
+                        name: "วิศวกรรมศาสตร์",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "ออกแบบ สร้างสรรค์ และแก้ปัญหาด้วยเทคโนโลยี พัฒนานวัตกรรมเพื่อสังคม",
+                        subjects: [
+                            "คณิตศาสตร์ขั้นสูง", "ฟิสิกส์ประยุกต์", "เคมีวิศวกรรม",
+                            "วิศวกรรมโครงสร้าง", "ระบบควบคุมอัตโนมัติ", "วิศวกรรมสิ่งแวดล้อม"
+                        ],
+                        career: [
+                            "วิศวกรโยธา", "วิศวกรไฟฟ้า", "วิศวกรเครื่องกล", "วิศวกรซอฟต์แวร์",
+                            "วิศวกรสิ่งแวดล้อม", "วิศวกรอุตสาหการ", "Project Manager", "นักวิจัยและพัฒนา"
+                        ],
+                        salary: "40,000 - 120,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=วิศวกรรมศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["R", "I", "E"],
+                        similar: ["science", "it", "architecture"]
+                    },
+                    medicine: {
+                        name: "แพทยศาสตร์",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "การดูแลรักษา ป้องกันโรค และส่งเสริมสุขภาพของประชาชน",
+                        subjects: [
+                            "กายวิภาคศาสตร์", "สรีรวิทยา", "พยาธิวิทยา", "เภสัชวิทยา",
+                            "อายุรศาสตร์", "ศัลยศาสตร์", "กุมารเวชศาสตร์", "จิตเวชศาสตร์"
+                        ],
+                        career: [
+                            "แพทย์ทั่วไป", "แพทย์เฉพาะทาง", "นักวิจัยทางการแพทย์",
+                            "ผู้บริหารระบบสุขภาพ", "แพทย์สาธารณสุข", "อาจารย์แพทย์"
+                        ],
+                        salary: "80,000 - 300,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=แพทยศาสตร์&university=มหาวิทยาลัยมหิดล",
+                        riasecTypes: ["I", "S"],
+                        similar: ["nursing", "pharmacy", "dentistry"]
+                    },
+                    science: {
+                        name: "วิทยาศาสตร์",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การวิจัย ค้นพบ และเข้าใจธรรมชาติของสรรพสิ่ง",
+                        subjects: [
+                            "คณิตศาสตร์", "ฟิสิกส์", "เคมี", "ชีววิทยา",
+                            "วิทยาศาสตร์โลก", "ดาราศาสตร์", "สถิติ", "วิทยาการคอมพิวเตอร์"
+                        ],
+                        career: [
+                            "นักวิทยาศาสตร์", "นักวิจัย", "อาจารย์มหาวิทยาลัย", "นักวิเคราะห์ข้อมูล",
+                            "ที่ปรึกษาวิทยาศาสตร์", "นักเขียนวิทยาศาสตร์", "Quality Control"
+                        ],
+                        salary: "30,000 - 80,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=วิทยาศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["I", "R"],
+                        similar: ["engineering", "medicine", "it"]
+                    },
+                    it: {
+                        name: "วิทยาการคอมพิวเตอร์/เทคโนโลยีสารสนเทศ",
+                        university: "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี",
+                        worldRank: "801-1,000",
+                        thaiRank: 3,
+                        description: "การพัฒนาซอฟต์แวร์ ระบบคอมพิวเตอร์ และเทคโนโลยีดิจิทัล",
+                        subjects: [
+                            "โปรแกรมมิ่ง", "โครงสร้างข้อมูล", "ฐานข้อมูล", "เครือข่ายคอมพิวเตอร์",
+                            "ปัญญาประดิษฐ์", "การรักษาความปลอดภัย", "วิศวกรรมซอฟต์แวร์"
+                        ],
+                        career: [
+                            "โปรแกรมเมอร์", "Software Developer", "System Analyst", "Data Scientist",
+                            "Cybersecurity Specialist", "AI Engineer", "IT Consultant", "Tech Entrepreneur"
+                        ],
+                        salary: "35,000 - 150,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=วิทยาการคอมพิวเตอร์&university=พระจอมเกล้าธนบุรี",
+                        riasecTypes: ["I", "R", "C"],
+                        similar: ["engineering", "science", "digital_media"]
+                    },
+                    business: {
+                        name: "บริหารธุรกิจ",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การบริหารจัดการองค์กร การตลาด และการพัฒนาธุรกิจ",
+                        subjects: [
+                            "การจัดการ", "การตลาด", "การเงิน", "การบัญชี",
+                            "ทรัพยากรมนุษย์", "การดำเนินงาน", "กลยุทธ์องค์กร", "การประกอบการ"
+                        ],
+                        career: [
+                            "นักบริหาร", "นักการตลาด", "วิเคราะห์การเงิน", "HR Manager",
+                            "Business Consultant", "Sales Manager", "Product Manager", "นักธุรกิจ"
+                        ],
+                        salary: "35,000 - 150,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=บริหารธุรกิจ&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["E", "C", "S"],
+                        similar: ["economics", "management", "accounting"]
+                    },
+                    arts: {
+                        name: "ศิลปกรรมศาสตร์",
+                        university: "มหาวิทยาลัยศิลปกรรมศาสตร์",
+                        worldRank: "ไม่ได้จัดอันดับ",
+                        thaiRank: "เฉพาะด้าน",
+                        description: "การสร้างสรรค์งานศิลปะ การออกแบบ และการแสดง",
+                        subjects: [
+                            "จิตรกรรม", "ประติมากรรม", "ศิลปะไทย", "ศิลปะสมัยใหม่",
+                            "การออกแบบกราฟิก", "การออกแบบผลิตภัณฑ์", "สื่อประสม"
+                        ],
+                        career: [
+                            "ศิลปิน", "นักออกแบบกราฟิก", "นักออกแบบผลิตภัณฑ์", "Creative Director",
+                            "Art Director", "อนิเมเตอร์", "ภาพประกอบ", "นักสะสมศิลปะ"
+                        ],
+                        salary: "25,000 - 100,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=ศิลปกรรมศาสตร์&university=ศิลปกรรมศาสตร์",
+                        riasecTypes: ["A", "R"],
+                        similar: ["architecture", "design", "communication"]
+                    },
+                    law: {
+                        name: "นิติศาสตร์",
+                        university: "มหาวิทยาลัยธรรมศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 10,
+                        description: "การศึกษากฎหมาย ความยุติธรรม และการบังคับใช้กฎหมาย",
+                        subjects: [
+                            "กฎหมายมหาชน", "กฎหมายแพ่ง", "กฎหมายอาญา", "กฎหมายธุรกิจ",
+                            "กฎหมายแรงงาน", "กฎหมายระหว่างประเทศ", "กระบวนการยุติธรรม"
+                        ],
+                        career: [
+                            "ทนายความ", "ผู้พิพากษา", "อัยการ", "นิติกรบริษัท",
+                            "ที่ปรึกษากฎหมาย", "นักวิชาการกฎหมาย", "เจ้าหน้าที่กฎหมาย"
+                        ],
+                        salary: "35,000 - 200,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=นิติศาสตร์&university=ธรรมศาสตร์",
+                        riasecTypes: ["E", "C", "S"],
+                        similar: ["political", "public_admin", "business"]
+                    },
+                    architecture: {
+                        name: "สถาปัตยกรรมศาสตร์",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การออกแบบอาคาร สิ่งแวดล้อม และการวางผังเมือง",
+                        subjects: [
+                            "การออกแบบสถาปัตยกรรม", "วิศวกรรมโครงสร้าง", "การวางผังเมือง",
+                            "สิ่งแวดล้อม", "เทคโนโลยีอาคาร", "ประวัติศาสตร์สถาปัตยกรรม"
+                        ],
+                        career: [
+                            "สถาปนิก", "นักออกแบบ", "ผู้วางผังเมือง", "ที่ปรึกษาการออกแบบ",
+                            "Project Manager", "นักอนุรักษ์", "Interior Designer"
+                        ],
+                        salary: "40,000 - 120,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=สถาปัตยกรรมศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["A", "R", "I"],
+                        similar: ["engineering", "arts", "design"]
+                    },
+                    nursing: {
+                        name: "พยาบาลศาสตร์",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "การดูแลผู้ป่วย ส่งเสริมสุขภาพ และการพยาบาล",
+                        subjects: [
+                            "พยาบาลศาสตร์พื้นฐาน", "การพยาบาลผู้ใหญ่", "การพยาบาลเด็ก",
+                            "การพยาบาลสูติ-นรีเวช", "การพยาบาลจิตเวช", "การบริหารการพยาบาล"
+                        ],
+                        career: [
+                            "พยาบาลวิชาชีพ", "หัวหน้าพยาบาล", "พยาบาลเฉพาะทาง",
+                            "ผู้บริหารการพยาบาล", "อาจารย์พยาบาล", "นักวิจัยการพยาบาล"
+                        ],
+                        salary: "28,000 - 70,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=พยาบาลศาสตร์&university=มหิดล",
+                        riasecTypes: ["S", "I", "C"],
+                        similar: ["medicine", "public_health", "social"]
+                    },
+                    education: {
+                        name: "ครุศาสตร์/ศึกษาศาสตร์",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การสอน การพัฒนาการศึกษา และการเรียนรู้",
+                        subjects: [
+                            "หลักสูตรและการสอน", "จิตวิทยาการศึกษา", "การบริหารการศึกษา",
+                            "เทคโนโลยีการศึกษา", "การวัดและประเมินผล", "วิจัยการศึกษา"
+                        ],
+                        career: [
+                            "ครูระดับต่างๆ", "ผู้บริหารสถานศึกษา", "นักพัฒนาหลักสูตร",
+                            "อาจารย์มหาวิทยาลัย", "นักวิจัยการศึกษา", "ที่ปรึกษาการศึกษา"
+                        ],
+                        salary: "25,000 - 60,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=ครุศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["S", "A", "C"],
+                        similar: ["social", "psychology", "humanities"]
+                    },
+                    economics: {
+                        name: "เศรษฐศาสตร์",
+                        university: "มหาวิทยาลัยธรรมศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 10,
+                        description: "การวิเคราะห์เศรษฐกิจ การเงิน และนโยบายสาธารณะ",
+                        subjects: [
+                            "เศรษฐศาสตร์จุลภาค", "เศรษฐศาสตร์มหภาค", "เศรษฐมิติ", "การเงินการธนาคาร",
+                            "เศรษฐศาสตร์ระหว่างประเทศ", "นโยบายสาธารณะ", "การพัฒนาเศรษฐกิจ"
+                        ],
+                        career: [
+                            "นักเศรษฐศาสตร์", "นักวิเคราะห์การเงิน", "นักวางแผนนโยบาย",
+                            "ที่ปรึกษาเศรษฐกิจ", "นักวิจัยเศรษฐกิจ", "Banking Officer"
+                        ],
+                        salary: "35,000 - 100,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=เศรษฐศาสตร์&university=ธรรมศาสตร์",
+                        riasecTypes: ["I", "E", "C"],
+                        similar: ["business", "accounting", "political"]
+                    },
+                    agriculture: {
+                        name: "เกษตรศาสตร์",
+                        university: "มหาวิทยาลัยเกษตรศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 9,
+                        description: "การผลิตพืช การเลี้ยงสัตว์ และเทคโนโลยีการเกษตร",
+                        subjects: [
+                            "พืชศาสตร์", "สัตวศาสตร์", "ดินและปุ่ย", "กีฏวิทยา",
+                            "เทคโนโลジีหลังการเก็บเกี่ยว", "เศรษฐศาสตร์เกษตร", "วิศวกรรมเกษตร"
+                        ],
+                        career: [
+                            "นักวิชาการเกษตร", "เกษตรกรสมัยใหม่", "ผู้จัดการฟาร์ม",
+                            "นักวิจัยการเกษตร", "ที่ปรึกษาเกษตร", "นักพัฒนาเมล็ดพันธุ์"
+                        ],
+                        salary: "25,000 - 70,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=เกษตรศาสตร์&university=เกษตรศาสตร์",
+                        riasecTypes: ["R", "I", "E"],
+                        similar: ["veterinary", "environmental", "food_tech"]
+                    },
+                    pharmacy: {
+                        name: "เภสัชศาสตร์",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "การผลิต จัดจำหน่าย และใช้ยาอย่างปลอดภัย",
+                        subjects: [
+                            "เคมีเภสัช", "เภสัชวิทยา", "เภสัชกรรม", "จุลชีววิทยาเชิงเภสัช",
+                            "การจัดการเภสัชกรรม", "เภสัชกิจชุมชน", "เภสัชศาสตร์คลินิก"
+                        ],
+                        career: [
+                            "เภสัชกรโรงพยาบาล", "เภสัชกรชุมชน", "เภสัชกรอุตสาหกรรม",
+                            "นักวิจัยยา", "ผู้ตรวจสอบคุณภาพยา", "Drug Safety Officer"
+                        ],
+                        salary: "35,000 - 80,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=เภสัชศาสตร์&university=มหิดล",
+                        riasecTypes: ["I", "C", "S"],
+                        similar: ["medicine", "chemistry", "public_health"]
+                    },
+                    dentistry: {
+                        name: "ทันตแพทยศาสตร์",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "การรักษาและดูแลสุขภาพช่องปากและฟัน",
+                        subjects: [
+                            "กายวิภาคศาสตร์ช่องปาก", "พยาธิวิทยาช่องปาก", "ทันตกรรมหัตถการ",
+                            "ทันตกรรมประดิษฐ์", "ศัลยกรรมช่องปาก", "ทันตกรรมเด็ก"
+                        ],
+                        career: [
+                            "ทันตแพทย์ทั่วไป", "ทันตแพทย์เฉพาะทาง", "ทันตแพทย์เสริมความงาม",
+                            "อาจารย์ทันตแพทย์", "นักวิจัยทันตแพทย์", "ผู้ประกอบการคลินิก"
+                        ],
+                        salary: "60,000 - 200,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=ทันตแพทยศาสตร์&university=มหิดล",
+                        riasecTypes: ["I", "R", "S"],
+                        similar: ["medicine", "public_health", "applied_health"]
+                    },
+                    veterinary: {
+                        name: "สัตวแพทยศาสตร์",
+                        university: "มหาวิทยาลัยเกษตรศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 9,
+                        description: "การรักษาสัตว์ การป้องกันโรคระบาด และสุขภาพสัตว์",
+                        subjects: [
+                            "กายวิภาคสัตว์", "สรีรวิทยาสัตว์", "พยาธิวิทยาสัตว์", "โรคสัตว์",
+                            "เภสัชวิทยาสัตว์", "การสืบพันธุ์สัตว์", "สัตวแพทย์สาธารณสุข"
+                        ],
+                        career: [
+                            "สัตวแพทย์เลี้ยงสัตว์", "สัตวแพทย์ฟาร์ม", "สัตวแพทย์สาธารณสุข",
+                            "นักวิจัยสัตวแพทย์", "เจ้าหน้าที่กรมปศุสัตว์", "สัตวแพทย์โรงงาน"
+                        ],
+                        salary: "30,000 - 80,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=สัตวแพทยศาสตร์&university=เกษตรศาสตร์",
+                        riasecTypes: ["I", "R", "S"],
+                        similar: ["agriculture", "biology", "public_health"]
+                    },
+                    psychology: {
+                        name: "จิตวิทยา",
+                        university: "มหาวิทยาลัยเชียงใหม่",
+                        worldRank: "1,001-1,200",
+                        thaiRank: 4,
+                        description: "การศึกษาพฤติกรรมและจิตใจมนุษย์",
+                        subjects: [
+                            "จิตวิทยาทั่วไป", "จิตวิทยาพัฒนาการ", "จิตวิทยาสังคม", "จิตวิทยาความผิดปกติ",
+                            "จิตวิทยาคลินิก", "จิตวิทยาการศึกษา", "จิตวิทยาอุตสาหกรรม"
+                        ],
+                        career: [
+                            "นักจิตวิทยาคลินิก", "นักจิตวิทยาการศึกษา", "นักจิตวิทยาอุตสาหกรรม",
+                            "นักจิตวิทยาชุมชน", "ที่ปรึกษาจิตวิทยา", "นักวิจัยพฤติกรรม"
+                        ],
+                        salary: "30,000 - 70,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=จิตวิทยา&university=เชียงใหม่",
+                        riasecTypes: ["S", "I", "A"],
+                        similar: ["social", "education", "counseling"]
+                    },
+                    communication: {
+                        name: "นิเทศศาสตร์/การสื่อสาร",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การสื่อสารมวลชน การประชาสัมพันธ์ และสื่อดิจิทัล",
+                        subjects: [
+                            "หลักการสื่อสาร", "การผลิตสื่อ", "การประชาสัมพันธ์", "การโฆษณา",
+                            "การข่าว", "วิทยุกระจายเสียง", "โทรทัศน์", "สื่อดิจิทัล"
+                        ],
+                        career: [
+                            "นักข่าว", "นักประชาสัมพันธ์", "นักโฆษณา", "Content Creator",
+                            "Event Organizer", "Social Media Manager", "MC/Presenter"
+                        ],
+                        salary: "28,000 - 80,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=นิเทศศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["A", "E", "S"],
+                        similar: ["journalism", "marketing", "digital_media"]
+                    },
+                    accounting: {
+                        name: "การบัญชี",
+                        university: "มหาวิทยาลัยธรรมศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 10,
+                        description: "การบันทึก วิเคราะห์ และรายงานข้อมูลทางการเงิน",
+                        subjects: [
+                            "การบัญชีขั้นต้น", "การบัญชีต้นทุน", "การบัญชีการเงิน", "การตรวจสอบบัญชี",
+                            "ภาษีอากร", "ระบบสารสนเทศทางบัญชี", "การบัญชีบริหาร"
+                        ],
+                        career: [
+                            "นักบัญชี", "ผู้สอบบัญชี", "ที่ปรึกษาภาษี", "นักวิเคราะห์การเงิน",
+                            "Controller", "CFO", "Tax Consultant"
+                        ],
+                        salary: "30,000 - 100,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=การบัญชี&university=ธรรมศาสตร์",
+                        riasecTypes: ["C", "E", "I"],
+                        similar: ["business", "economics", "finance"]
+                    },
+                    political: {
+                        name: "รัฐศาสตร์",
+                        university: "มหาวิทยาลัยธรรมศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 10,
+                        description: "การศึกษาระบบการเมือง การปกครอง และความสัมพันธ์ระหว่างประเทศ",
+                        subjects: [
+                            "ทฤษฎีการเมือง", "ระบบการเมืองไทย", "การเมืองเปรียบเทียบ", "ความสัมพันธ์ระหว่างประเทศ",
+                            "การบริหารรัฐกิจ", "นโยบายสาธารณะ", "ความมั่นคงแห่งชาติ"
+                        ],
+                        career: [
+                            "นักการเมือง", "เจ้าหน้าที่รัฐ", "นักวิชาการรัฐศาสตร์", "นักข่าวการเมือง",
+                            "นักวิเคราะห์นโยบาย", "เจ้าหน้าที่การทูต", "นักจัดการเลือกตั้ง"
+                        ],
+                        salary: "30,000 - 80,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=รัฐศาสตร์&university=ธรรมศาสตร์",
+                        riasecTypes: ["E", "S", "C"],
+                        similar: ["law", "public_admin", "international"]
+                    },
+                    social: {
+                        name: "สังคมศาสตร์/สังคมสงเคราะห์",
+                        university: "มหาวิทยาลัยธรรมศาสตร์",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 10,
+                        description: "การศึกษาสังคม การช่วยเหลือผู้ด้อยโอกาส และการพัฒนาชุมชน",
+                        subjects: [
+                            "สังคมวิทยา", "มานุษยวิทยา", "สังคมสงเคราะห์", "การพัฒนาชุมชน",
+                            "นโยบายสังคม", "จิตวิทยาสังคม", "การวิจัยสังคม"
+                        ],
+                        career: [
+                            "นักสังคมสงเคราะห์", "นักพัฒนาชุมชน", "เจ้าหน้าที่องค์กรพัฒนาเอกชน",
+                            "นักวิจัยสังคม", "ที่ปรึกษาสังคม", "Case Worker"
+                        ],
+                        salary: "25,000 - 60,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=สังคมศาสตร์&university=ธรรมศาสตร์",
+                        riasecTypes: ["S", "E", "A"],
+                        similar: ["psychology", "education", "public_admin"]
+                    },
+                    humanities: {
+                        name: "อักษรศาสตร์/มนุษยศาสตร์",
+                        university: "จุฬาลงกรณ์มหาวิทยาลัย",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "การศึกษาภาษา วรรณกรรม ปรัชญา และวัฒนธรรม",
+                        subjects: [
+                            "ภาษาไทย", "ภาษาอังกฤษ", "วรรณคดีไทย", "วรรณคดีโลก",
+                            "ประวัติศาสตร์", "ปรัชญา", "ศาสนศึกษา", "ภาษาศาสตร์"
+                        ],
+                        career: [
+                            "นักเขียน", "นักแปล", "บรรณาธิการ", "อาจารย์",
+                            "นักวิจัยด้านภาษา", "ผู้จัดรายการ", "นักวรรณกรรม"
+                        ],
+                        salary: "25,000 - 60,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=อักษรศาสตร์&university=จุฬาลงกรณ์มหาวิทยาลัย",
+                        riasecTypes: ["A", "S", "I"],
+                        similar: ["education", "communication", "linguistics"]
+                    },
+                    public_health: {
+                        name: "สาธารณสุขศาสตร์",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "การป้องกันโรค ส่งเสริมสุขภาพ และจัดการระบบสุขภาพ",
+                        subjects: [
+                            "ระบาดวิทยา", "โภชนาการสาธารณสุข", "สุขาภิบาลสิ่งแวดล้อม",
+                            "การจัดการสุขภาพ", "สถิติสุขภาพ", "นโยบายสาธารณสุข"
+                        ],
+                        career: [
+                            "นักสาธารณสุข", "เจ้าหน้าที่กรมควบคุมโรค", "นักโภชนาการ",
+                            "ผู้จัดการโครงการสุขภาพ", "นักวิจัยสาธารณสุข", "Health Educator"
+                        ],
+                        salary: "28,000 - 65,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=สาธารณสุขศาสตร์&university=มหิดล",
+                        riasecTypes: ["S", "I", "C"],
+                        similar: ["medicine", "nursing", "environmental"]
+                    },
+                    tourism: {
+                        name: "การท่องเที่ยว",
+                        university: "มหาวิทยาลัยแม่ฟ้าหลวง",
+                        worldRank: "1,201-1,500",
+                        thaiRank: 8,
+                        description: "การจัดการท่องเที่ยว การบริการ และการโรงแรม",
+                        subjects: [
+                            "การจัดการท่องเที่ยว", "การโรงแรม", "การบิน", "ภูมิศาสตร์การท่องเที่ยว",
+                            "วัฒนธรรมการท่องเที่ยว", "การตลาดท่องเที่ยว", "การนำเที่ยว"
+                        ],
+                        career: [
+                            "มัคคุเทศก์", "ผู้จัดการโรงแรม", "Tour Operator", "เจ้าหน้าที่สายการบิน",
+                            "นักวางแผนท่องเที่ยว", "Event Coordinator", "Travel Blogger"
+                        ],
+                        salary: "25,000 - 70,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=การท่องเที่ยว&university=แม่ฟ้าหลวง",
+                        riasecTypes: ["E", "S", "A"],
+                        similar: ["hospitality", "business", "cultural"]
+                    },
+                    international: {
+                        name: "การจัดการระหว่างประเทศ",
+                        university: "มหาวิทยาลัยมหิดล",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "ธุรกิจระหว่างประเทศ การทูต และการค้าโลก",
+                        subjects: [
+                            "ธุรกิจระหว่างประเทศ", "ความสัมพันธ์ระหว่างประเทศ", "เศรษฐศาสตร์ระหว่างประเทศ",
+                            "การเจรจาต่อรอง", "วัฒนธรรมโลก", "การค้าระหว่างประเทศ"
+                        ],
+                        career: [
+                            "นักธุรกิจระหว่างประเทศ", "เจ้าหน้าที่การทูต", "Import-Export Manager",
+                            "International Consultant", "Cultural Liaison", "Trade Analyst"
+                        ],
+                        salary: "35,000 - 100,000 บาท/เดือน",
+                        tcasLink: "https://www.mytcas.com/search?keyword=ระหว่างประเทศ&university=มหิดล",
+                        riasecTypes: ["E", "S", "C"],
+                        similar: ["business", "political", "economics"]
+                    }
+                }
+            },
+            en: {
+                questions: [
+                    {
+                        question: "What type of activities do you enjoy?",
+                        riasec: "Realistic",
+                        options: [
+                            {
+                                text: "Hands-on work, repairs, or building things",
+                                description: "Such as fixing machines, assembling equipment, crafts",
+                                weight: { engineering: 3, architecture: 2, agriculture: 2, applied_arts: 1 },
+                                riasec: "R"
+                            },
+                            {
+                                text: "Research, analysis, and finding answers",
+                                description: "Such as experiments, data analysis, logical problem solving",
+                                weight: { science: 3, medicine: 2, pharmacy: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "Creating art, music, or writing",
+                                description: "Such as drawing, composing music, writing novels, designing",
+                                weight: { arts: 3, architecture: 2, humanities: 2, communication: 2 },
+                                riasec: "A"
+                            },
+                            {
+                                text: "Helping, teaching, or counseling others",
+                                description: "Such as teaching, caring for patients, giving advice",
+                                weight: { education: 3, medicine: 2, nursing: 3, social: 2 },
+                                riasec: "S"
+                            }
+                        ]
+                    },
+                    {
+                        question: "What are you most capable of?",
+                        riasec: "Investigative",
+                        options: [
+                            {
+                                text: "Math, data analysis, and solving mathematical problems",
+                                description: "Logic and calculation abilities",
+                                weight: { science: 3, engineering: 2, economics: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "Communication, public speaking, and persuasion",
+                                description: "Communication skills and leadership",
+                                weight: { business: 3, law: 2, communication: 3, political: 2 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "Organization, planning, and detailed work",
+                                description: "Management and organizational abilities",
+                                weight: { business: 2, management: 3, accounting: 3, law: 1 },
+                                riasec: "C"
+                            },
+                            {
+                                text: "Understanding and empathizing with others' feelings",
+                                description: "Ability to understand human psychology",
+                                weight: { social: 3, education: 2, psychology: 3, nursing: 2 },
+                                riasec: "S"
+                            }
+                        ]
+                    },
+                    {
+                        question: "What do you most enjoy learning about?",
+                        riasec: "Artistic",
+                        options: [
+                            {
+                                text: "Arts, design, and beautiful things",
+                                description: "Aesthetics and creativity",
+                                weight: { arts: 3, architecture: 2, design: 3, humanities: 1 },
+                                riasec: "A"
+                            },
+                            {
+                                text: "Science, technology, and new discoveries",
+                                description: "Scientific and technological knowledge",
+                                weight: { science: 3, engineering: 2, it: 3, medicine: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "History, culture, and society",
+                                description: "Understanding humans and society",
+                                weight: { humanities: 3, social: 2, political: 2, education: 1 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "Business, finance, and economics",
+                                description: "Management and economic knowledge",
+                                weight: { business: 3, economics: 3, management: 2, accounting: 2 },
+                                riasec: "E"
+                            }
+                        ]
+                    },
+                    {
+                        question: "You tend to be someone who?",
+                        riasec: "Social",
+                        options: [
+                            {
+                                text: "Likes to work alone, focusing on accuracy and details",
+                                description: "Personality that prefers independent work",
+                                weight: { science: 2, it: 3, accounting: 3, research: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "Enjoys teamwork and cares about people around",
+                                description: "Friendly and cooperative personality",
+                                weight: { social: 3, education: 2, business: 2, nursing: 2 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "Likes to lead and make quick decisions",
+                                description: "Leadership personality that's decisive",
+                                weight: { business: 3, management: 3, law: 2, political: 2 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "Enjoys exploring and trying new things",
+                                description: "Adventurous and creative personality",
+                                weight: { arts: 2, journalism: 3, tourism: 2, communication: 2 },
+                                riasec: "A"
+                            }
+                        ]
+                    },
+                    {
+                        question: "Your preferred work environment?",
+                        riasec: "Enterprising",
+                        options: [
+                            {
+                                text: "Office, meeting rooms, and presentations",
+                                description: "Business and management environment",
+                                weight: { business: 3, management: 3, economics: 2, law: 1 },
+                                riasec: "E"
+                            },
+                            {
+                                text: "Laboratory, factory, or field",
+                                description: "Practical work environment",
+                                weight: { science: 3, engineering: 3, agriculture: 2, medicine: 1 },
+                                riasec: "R"
+                            },
+                            {
+                                text: "Schools, hospitals, or community",
+                                description: "Social service environment",
+                                weight: { education: 3, medicine: 2, nursing: 3, social: 2 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "Studio, design room, or creative spaces",
+                                description: "Environment conducive to creativity",
+                                weight: { arts: 3, architecture: 3, design: 3, communication: 1 },
+                                riasec: "A"
+                            }
+                        ]
+                    },
+                    {
+                        question: "When facing problems, you usually?",
+                        riasec: "Conventional",
+                        options: [
+                            {
+                                text: "Analyze systematically and gather more information",
+                                description: "Scientific problem-solving approach",
+                                weight: { science: 3, research: 3, medicine: 2, it: 2 },
+                                riasec: "I"
+                            },
+                            {
+                                text: "Consult others and find solutions together",
+                                description: "Collaborative problem-solving approach",
+                                weight: { social: 3, education: 2, business: 2, management: 1 },
+                                riasec: "S"
+                            },
+                            {
+                                text: "Use clear rules and procedures",
+                                description: "Systematic problem-solving approach",
+                                weight: { law: 3, accounting: 3, management: 2, public_admin: 2 },
+                                riasec: "C"
+                            },
+                            {
+                                text: "Think outside the box and find new ways",
+                                description: "Creative problem-solving approach",
+                                weight: { arts: 3, design: 3, communication: 2, entrepreneurship: 2 },
+                                riasec: "A"
+                            }
+                        ]
+                    }
+                ],
+                faculties: {
+                    // English translations would follow the same structure as Thai
+                    // For brevity, showing key examples
+                    engineering: {
+                        name: "Engineering",
+                        university: "Chulalongkorn University",
+                        worldRank: "601-800",
+                        thaiRank: 1,
+                        description: "Design, create, and solve problems with technology, develop innovations for society",
+                        subjects: [
+                            "Advanced Mathematics", "Applied Physics", "Chemical Engineering",
+                            "Structural Engineering", "Automation Systems", "Environmental Engineering"
+                        ],
+                        career: [
+                            "Civil Engineer", "Electrical Engineer", "Mechanical Engineer", "Software Engineer",
+                            "Environmental Engineer", "Industrial Engineer", "Project Manager", "R&D Engineer"
+                        ],
+                        salary: "40,000 - 120,000 THB/month",
+                        tcasLink: "https://www.mytcas.com/search?keyword=engineering&university=chulalongkorn",
+                        riasecTypes: ["R", "I", "E"],
+                        similar: ["science", "it", "architecture"]
+                    },
+                    medicine: {
+                        name: "Medicine",
+                        university: "Mahidol University",
+                        worldRank: "601-800",
+                        thaiRank: 2,
+                        description: "Healthcare, disease prevention, and promoting public health",
+                        subjects: [
+                            "Anatomy", "Physiology", "Pathology", "Pharmacology",
+                            "Internal Medicine", "Surgery", "Pediatrics", "Psychiatry"
+                        ],
+                        career: [
+                            "General Practitioner", "Medical Specialist", "Medical Researcher",
+                            "Healthcare Administrator", "Public Health Doctor", "Medical Professor"
+                        ],
+                        salary: "80,000 - 300,000 THB/month",
+                        tcasLink: "https://www.mytcas.com/search?keyword=medicine&university=mahidol",
+                        riasecTypes: ["I", "S"],
+                        similar: ["nursing", "pharmacy", "dentistry"]
+                    }
+                    // Other faculties would follow similar pattern...
+                }
+            }
+        };
+
+        // PathBot responses with RIASEC context
+        const pathbotResponses = {
+            th: {
+                greeting: [
+                    "สวัสดีค่ะ! มาค้นหาคณะที่ใช่ด้วยทฤษฎี RIASEC กันเถอะ 🎓",
+                    "พร้อมที่จะหาคณะที่เหมาะกับบุคลิกคุณแล้วไหมคะ? ✨",
+                    "เริ่มต้นการเดินทางสู่อนาคตที่ใช่กันเลย! 🚀"
+                ],
+                encouraging: [
+                    "ยอดเยี่ยม! คำตอบแสดงบุคลิก RIASEC ของคุณใกล้จะชัดเจนแล้วนะคะ 💪",
+                    "เก่งมาก! เลือกข้อมูลเพิ่มเติมให้ฉันช่วยวิเคราะห์ได้แม่นยำขึ้น 🌟",
+                    "สุดยอด! บุคลิกของคุณเริ่มชัดเจนแล้ว ⭐"
+                ],
+                thinking: [
+                    "กำลังวิเคราะห์บุคลิก RIASEC ของคุณ... 🤔",
+                    "ให้ฉันดูความสนใจของคุณหน่อย... 💭",
+                    "อืมม์... รูปแบบการตอบน่าสนใจจัง 🧐"
+                ],
+                completed: [
+                    "เสร็จแล้ว! วิเคราะห์ RIASEC เรียบร้อย 🎉",
+                    "ได้แล้ว! คณะที่เหมาะกับบุคลิกคุณคือ... 🎊",
+                    "การวิเคราะห์เสร็จสมบูรณ์! ดูผลกันเลย 🏆"
+                ],
+                waiting: [
+                    "รอคำตอบเพื่อวิเคราะห์บุคลิกอยู่นะคะ ⏰",
+                    "ตอบเมื่อไหร่ก็ได้ค่ะ ไม่รีบ 😊",
+                    "ฉันรออยู่ตรงนี้นะ 🕰️"
+                ]
+            },
+            en: {
+                greeting: [
+                    "Hello! Let's find your perfect faculty using RIASEC theory 🎓",
+                    "Ready to discover faculties that match your personality? ✨",
+                    "Let's start your journey to the right future! 🚀"
+                ],
+                encouraging: [
+                    "Excellent! Your answers clearly show your RIASEC personality 💪",
+                    "Great job! More data helps analyze more accurately 🌟",
+                    "Awesome! Your personality is becoming clearer ⭐"
+                ],
+                thinking: [
+                    "Analyzing your RIASEC personality... 🤔",
+                    "Let me examine your interests... 💭",
+                    "Hmm... your response pattern is interesting 🧐"
+                ],
+                completed: [
+                    "Done! RIASEC analysis complete 🎉",
+                    "Got it! The faculty that matches your personality is... 🎊",
+                    "Analysis complete! Let's see the results 🏆"
+                ],
+                waiting: [
+                    "Waiting for your answer to analyze personality ⏰",
+                    "Take your time, no rush 😊",
+                    "I'm waiting here 🕰️"
+                ]
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            initStorage();
+            loadQuestions();
+            loadHistory();
+            loadFavorites();
+            updatePathbotSpeech('greeting');
+        }
+
+        function initStorage() {
+            quizResults = loadFromStorage('quizResults');
+            favoriteResults = loadFromStorage('favoriteResults');
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'th' ? 'en' : 'th';
+            updateLanguage();
+            resetQuiz();
+            loadQuestions();
+        }
+
+        function updateLanguage() {
+            const translations = {
+                th: {
+                    mainTitle: "ค้นหาคณะที่ใช่ (Guide2Go!)",
+                    subtitle: "ระบบแนะนำมหาลัย คณะ และสาขาที่เหมาะกับคุณ ด้วยทฤษฎี RIASEC",
+                    tabQuiz: "แบบทดสอบ RIASEC",
+                    tabResults: "ผลลัพธ์ของฉัน",
+                    tabCompare: "เปรียบเทียบ",
+                    tabFavorites: "รายการโปรด",
+                    nextBtn: "ถัดไป",
+                    showResultsBtn: "ดูผลลัพธ์",
+                    resetBtn: "เริ่มใหม่",
+                    compareMsg: "ทำแบบทดสอบหลายครั้งเพื่อเปรียบเทียบผลลัพธ์",
+                    favoritesMsg: "ยังไม่มีคณะในรายการโปรด",
+                    qrTitle: "QR Code สำหรับแชร์",
+                    qrDesc: "สแกน QR Code เพื่อดูผลลัพธ์"
+                },
+                en: {
+                    mainTitle: "Find Your Perfect Faculty (PathPick)",
+                    subtitle: "AI-powered Faculty Recommendations using RIASEC Theory",
+                    tabQuiz: "RIASEC Quiz",
+                    tabResults: "My Results",
+                    tabCompare: "Compare",
+                    tabFavorites: "Favorites",
+                    nextBtn: "Next",
+                    showResultsBtn: "Show Results",
+                    resetBtn: "Reset",
+                    compareMsg: "Take the quiz multiple times to compare results",
+                    favoritesMsg: "No faculties in favorites yet",
+                    qrTitle: "QR Code for Sharing",
+                    qrDesc: "Scan QR Code to view results"
+                }
+            };
+
+            const trans = translations[currentLanguage];
+            Object.keys(trans).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = trans[key];
+                }
+            });
+        }
+
+        function updatePathbotSpeech(type) {
+            const responses = pathbotResponses[currentLanguage][type];
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            document.getElementById('pathbotSpeech').textContent = randomResponse;
+        }
+
+        function pathbotClick() {
+            const pathbot = document.querySelector('.pathbot');
+            pathbot.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                pathbot.style.transform = 'scale(1)';
+            }, 200);
+            updatePathbotSpeech('encouraging');
+        }
+
+        function loadQuestions() {
+            const questions = facultyData[currentLanguage].questions;
+            const container = document.getElementById('quizContainer');
+
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                container.innerHTML = `
+                    <div class="question-container">
+                        <div class="riasec-badge">${currentLanguage === 'th' ? 'ทฤษฎี RIASEC' : 'RIASEC Theory'}: ${question.riasec}</div>
+                        <div class="question">${currentQuestionIndex + 1}. ${question.question}</div>
+                        <div class="options" id="options-${currentQuestionIndex}">
+                            ${question.options.map((option, index) => `
+                                <div class="option" onclick="selectOption(${index})" data-index="${index}">
+                                    <div class="riasec-indicator">
+                                        <span class="riasec-type riasec-${option.riasec.toLowerCase()}">${option.riasec}</span>
+                                    </div>
+                                    <strong>${option.text}</strong>
+                                    <div class="option-description">${option.description}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            updateProgress();
+        }
+
+        function selectOption(optionIndex) {
+            const options = document.querySelectorAll(`#options-${currentQuestionIndex} .option`);
+            options.forEach(option => option.classList.remove('selected'));
+            options[optionIndex].classList.add('selected');
+
+            userAnswers[currentQuestionIndex] = optionIndex;
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            updatePathbotSpeech('encouraging');
+        }
+
+        function nextQuestion() {
+            if (userAnswers[currentQuestionIndex] === undefined) {
+                updatePathbotSpeech('waiting');
+                return;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < facultyData[currentLanguage].questions.length) {
+                loadQuestions();
+                document.getElementById('nextBtn').style.display = 'none';
+            } else {
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('showResultsBtn').classList.remove('hidden');
+                updatePathbotSpeech('completed');
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / facultyData[currentLanguage].questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function calculateResults() {
+            const questions = facultyData[currentLanguage].questions;
+            const faculties = facultyData[currentLanguage].faculties;
+            const scores = {};
+            const riasecScores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+
+            // Initialize scores
+            Object.keys(faculties).forEach(faculty => {
+                scores[faculty] = 0;
+            });
+
+            // Calculate scores based on answers
+            userAnswers.forEach((answerIndex, questionIndex) => {
+                const question = questions[questionIndex];
+                const selectedOption = question.options[answerIndex];
+
+                // Count RIASEC types
+                riasecScores[selectedOption.riasec]++;
+
+                Object.keys(selectedOption.weight).forEach(faculty => {
+                    if (scores[faculty] !== undefined) {
+                        scores[faculty] += selectedOption.weight[faculty];
+                    }
+                });
+            });
+
+            // Sort faculties by score
+            const sortedFaculties = Object.keys(scores)
+                .sort((a, b) => scores[b] - scores[a])
+                .slice(0, 3);
+
+            const results = sortedFaculties.map(faculty => ({
+                ...faculties[faculty],
+                id: faculty,
+                score: scores[faculty],
+                riasecProfile: riasecScores
+            }));
+
+            results[0].riasecProfile = riasecScores; // Add RIASEC profile to top result
+
+            return results;
+        }
+
+        function showResults() {
+            const results = calculateResults();
+            const timestamp = new Date().toLocaleString(currentLanguage === 'th' ? 'th-TH' : 'en-US');
+
+            // Save results
+            const resultData = {
+                results: results,
+                timestamp: timestamp,
+                answers: userAnswers.slice(),
+                language: currentLanguage
+            };
+
+            quizResults.unshift(resultData);
+            saveToStorage('quizResults', quizResults);
+
+            displayCurrentResult(results[0], results);
+            showTab('results');
+            loadHistory();
+            updatePathbotSpeech('completed');
+        }
+
+        function displayCurrentResult(topResult, allResults) {
+            const container = document.getElementById('currentResult');
+            const similarFaculties = getSimilarFaculties(topResult.id);
+
+            // Get dominant RIASEC types
+            const riasecProfile = topResult.riasecProfile || {};
+            const topRiasecTypes = Object.entries(riasecProfile)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 3)
+                .filter(([, score]) => score > 0);
+
+            container.innerHTML = `
+                <div class="result-card">
+                    <div class="result-title">
+                        <div>
+                            🎯 ${currentLanguage === 'th' ? 'คณะที่เหมาะกับคุณคือ' : 'Your Perfect Faculty'}: ${topResult.name}
+                            <div class="university-rank">${currentLanguage === 'th' ? 'อันดับไทย' : 'Thai Rank'} #${topResult.thaiRank}</div>
+                        </div>
+                        <button class="favorite-star" onclick="toggleFavorite('${topResult.id}')" style="background: none; border: none; font-size: 1.5em; cursor: pointer;">
+                            ${favoriteResults.some(f => f.id === topResult.id) ? '⭐' : '☆'}
+                        </button>
+                    </div>
+                    
+                    <div class="university-info">
+                        <strong>${topResult.university}</strong> | ${currentLanguage === 'th' ? 'อันดับโลก' : 'World Rank'}: ${topResult.worldRank}
+                        ${topResult.worldRank !== 'ไม่ได้จัดอันดับ' && topResult.worldRank !== 'Not Ranked' ?
+                    `<span class="world-rank"> (${currentLanguage === 'th' ? 'มหาวิทยาลัยชั้นนำของไทย' : 'Top Thai University'})</span>` : ''}
+                    </div>
+
+                    ${topRiasecTypes.length > 0 ? `
+                        <div style="margin: 15px 0;">
+                            <strong>${currentLanguage === 'th' ? 'บุคลิก RIASEC ของคุณ' : 'Your RIASEC Profile'}:</strong>
+                            <div class="riasec-indicator" style="margin-top: 10px;">
+                                ${topRiasecTypes.map(([type, score]) => `
+                                    <span class="riasec-type riasec-${type.toLowerCase()}">
+                                        ${type} (${score}/${facultyData[currentLanguage].questions.length})
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'คำอธิบาย' : 'Description'}</div>
+                            <div>${topResult.description}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'วิชาที่เรียน' : 'Subjects'}</div>
+                            <div>${topResult.subjects.join(', ')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'อาชีพในอนาคต' : 'Career Opportunities'}</div>
+                            <div>${topResult.career.join(', ')}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'เงินเดือนโดยเฉลี่ย' : 'Average Salary'}</div>
+                            <div>${topResult.salary}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'สมัครผ่าน myTCAS' : 'Apply via myTCAS'}</div>
+                            <div>
+                                <a href="${topResult.tcasLink}" target="_blank" class="tcas-link">
+                                    📋 ${currentLanguage === 'th' ? 'ดูข้อมูลการสมัคร myTCAS' : 'View myTCAS Application Info'}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">${currentLanguage === 'th' ? 'บุคลิก RIASEC ที่เหมาะสม' : 'Suitable RIASEC Types'}</div>
+                            <div class="riasec-indicator">
+                                ${topResult.riasecTypes.map(type => `
+                                    <span class="riasec-type riasec-${type.toLowerCase()}">${type}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4>${currentLanguage === 'th' ? 'คณะที่คล้ายกัน' : 'Similar Faculties'}</h4>
+                        <div class="similar-faculties">
+                            ${similarFaculties.map(faculty => `
+                                <span class="similar-faculty-tag" onclick="showFacultyInfo('${faculty.id}')">
+                                    ${faculty.name}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="share-buttons">
+                        <button class="share-btn share-line" onclick="shareToLine('${topResult.name}')">
+                            📱 ${currentLanguage === 'th' ? 'แชร์ไป LINE' : 'Share to LINE'}
+                        </button>
+                        <button class="share-btn share-facebook" onclick="shareToFacebook('${topResult.name}')">
+                            📘 ${currentLanguage === 'th' ? 'แชร์ไป Facebook' : 'Share to Facebook'}
+                        </button>
+                        <button class="share-btn share-qr" onclick="generateQR('${topResult.name}')">
+                            📄 ${currentLanguage === 'th' ? 'สร้าง QR Code' : 'Generate QR Code'}
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h3>${currentLanguage === 'th' ? 'ผลลัพธ์อื่นๆ ที่เหมาะกับคุณ' : 'Other Suitable Results'}</h3>
+                    ${allResults.slice(1).map((result, index) => `
+                        <div class="result-card" style="margin-top: 15px; opacity: 0.8;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                        <h4>${index + 2}. ${result.name}</h4>
+                                        <span class="university-rank" style="font-size: 0.7em;">#${result.thaiRank}</span>
+                                    </div>
+                                    <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">${result.university}</div>
+                                    <p style="margin-bottom: 8px;">${result.description}</p>
+                                    <div class="riasec-indicator" style="margin-bottom: 8px;">
+                                        ${result.riasecTypes.map(type => `
+                                            <span class="riasec-type riasec-${type.toLowerCase()}" style="font-size: 0.7em;">${type}</span>
+                                        `).join('')}
+                                    </div>
+                                    <p><strong>${currentLanguage === 'th' ? 'อาชีพ' : 'Careers'}:</strong> ${result.career.slice(0, 3).join(', ')}</p>
+                                    <p><strong>${currentLanguage === 'th' ? 'เงินเดือน' : 'Salary'}:</strong> ${result.salary}</p>
+                                    <a href="${result.tcasLink}" target="_blank" class="tcas-link" style="font-size: 0.8em; margin-top: 8px;">
+                                        📋 myTCAS
+                                    </a>
+                                </div>
+                                <button class="favorite-star" onclick="toggleFavorite('${result.id}')" style="background: none; border: none; font-size: 1.2em; cursor: pointer;">
+                                    ${favoriteResults.some(f => f.id === result.id) ? '⭐' : '☆'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function getSimilarFaculties(facultyId) {
+            const faculties = facultyData[currentLanguage].faculties;
+            const currentFaculty = faculties[facultyId];
+
+            if (!currentFaculty || !currentFaculty.similar) return [];
+
+            return currentFaculty.similar.map(id => ({
+                ...faculties[id],
+                id: id
+            })).filter(f => f.name);
+        }
+
+        function showFacultyInfo(facultyId) {
+            const faculty = facultyData[currentLanguage].faculties[facultyId];
+            if (!faculty) return;
+
+            const riasecTypes = faculty.riasecTypes ? faculty.riasecTypes.join(', ') : '';
+            const infoText = `${faculty.name}\n${faculty.university}\n\n${faculty.description}\n\n${currentLanguage === 'th' ? 'บุคลิก RIASEC' : 'RIASEC Types'}: ${riasecTypes}\n\n${currentLanguage === 'th' ? 'อาชีพ' : 'Careers'}: ${faculty.career.slice(0, 4).join(', ')}\n\n${currentLanguage === 'th' ? 'เงินเดือน' : 'Salary'}: ${faculty.salary}`;
+
+            if (confirm(infoText + `\n\n${currentLanguage === 'th' ? 'ต้องการดูข้อมูล myTCAS?' : 'View myTCAS info?'}`)) {
+                window.open(faculty.tcasLink, '_blank');
+            }
+        }
+
+        function toggleFavorite(facultyId) {
+            const faculty = facultyData[currentLanguage].faculties[facultyId];
+            if (!faculty) return;
+
+            const existingIndex = favoriteResults.findIndex(f => f.id === facultyId);
+
+            if (existingIndex >= 0) {
+                favoriteResults.splice(existingIndex, 1);
+            } else {
+                favoriteResults.push({
+                    ...faculty,
+                    id: facultyId,
+                    timestamp: new Date().toLocaleString(currentLanguage === 'th' ? 'th-TH' : 'en-US')
+                });
+            }
+
+            saveToStorage('favoriteResults', favoriteResults);
+            loadFavorites();
+
+            // Update star icons
+            const stars = document.querySelectorAll('.favorite-star');
+            stars.forEach(star => {
+                if (star.onclick && star.onclick.toString().includes(facultyId)) {
+                    star.textContent = favoriteResults.some(f => f.id === facultyId) ? '⭐' : '☆';
+                }
+            });
+        }
+
+        function shareToLine(facultyName) {
+            const text = currentLanguage === 'th'
+                ? `ฉันเหมาะกับคณะ ${facultyName} จากการทดสอบ PathPick ด้วยทฤษฎี RIASEC! มาทำแบบทดสอบกันเถอะ`
+                : `I'm suitable for ${facultyName} faculty from PathPick RIASEC test! Take the quiz too!`;
+            const url = window.location.href;
+            window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function shareToFacebook(facultyName) {
+            const url = window.location.href;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function generateQR(facultyName) {
+            const modal = document.getElementById('qrModal');
+            const qrContainer = document.getElementById('qrCode');
+
+            // Simple QR code placeholder (in real app, use QR library)
+            qrContainer.innerHTML = `
+                <div style="width: 200px; height: 200px; background: #f0f0f0; 
+                           display: flex; align-items: center; justify-content: center; 
+                           border: 2px solid #ccc; margin: 0 auto;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 60px;">📱</div>
+                        <div style="font-size: 12px; margin-top: 10px;">QR Code<br>${facultyName}</div>
+                    </div>
+                </div>
+                <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                    ${currentLanguage === 'th' ? 'ในแอปจริงจะมี QR Code ที่สแกนได้' : 'Real QR Code would be generated in actual app'}
+                </p>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        function loadHistory() {
+            const container = document.getElementById('historyResults');
+
+            if (quizResults.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>${currentLanguage === 'th' ? 'ยังไม่มีประวัติการทดสอบ RIASEC' : 'No RIASEC test history yet'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <h3>${currentLanguage === 'th' ? 'ประวัติการทดสอบ RIASEC' : 'RIASEC Test History'}</h3>
+                ${quizResults.map((result, index) => `
+                    <div class="history-item">
+                        <div class="history-date">${result.timestamp}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                                    <h4>${result.results[0].name}</h4>
+                                    <span class="university-rank" style="font-size: 0.7em;">#${result.results[0].thaiRank}</span>
+                                </div>
+                                <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">${result.results[0].university}</div>
+                                <p style="margin-bottom: 8px;">${result.results[0].description}</p>
+                                <div class="riasec-indicator" style="margin-bottom: 8px;">
+                                    ${result.results[0].riasecTypes.map(type => `
+                                        <span class="riasec-type riasec-${type.toLowerCase()}" style="font-size: 0.7em;">${type}</span>
+                                    `).join('')}
+                                </div>
+                                <p><strong>${currentLanguage === 'th' ? 'เงินเดือน' : 'Salary'}:</strong> ${result.results[0].salary}</p>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="viewHistoryDetail(${index})" style="padding: 8px 16px; font-size: 0.9em;">
+                                    ${currentLanguage === 'th' ? 'ดูรายละเอียด' : 'View Details'}
+                                </button>
+                                <button class="btn" onclick="deleteHistory(${index})" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9em;">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function viewHistoryDetail(index) {
+            const result = quizResults[index];
+            displayCurrentResult(result.results[0], result.results);
+        }
+
+        function deleteHistory(index) {
+            if (confirm(currentLanguage === 'th' ? 'ต้องการลบประวัติการทดสอบนี้?' : 'Delete this test history?')) {
+                quizResults.splice(index, 1);
+                saveToStorage('quizResults', quizResults);
+                loadHistory();
+                loadComparison();
+            }
+        }
+
+        function loadComparison() {
+            const container = document.getElementById('compareContainer');
+
+            if (quizResults.length < 2) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>${currentLanguage === 'th' ? 'ทำแบบทดสอบ RIASEC อย่างน้อย 2 ครั้งเพื่อเปรียบเทียบผลลัพธ์' : 'Take the RIASEC quiz at least 2 times to compare results'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const recentResults = quizResults.slice(0, 5);
+
+            container.innerHTML = `
+                <h3>${currentLanguage === 'th' ? 'เปรียบเทียบผลลัพธ์ RIASEC' : 'Compare RIASEC Results'}</h3>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>${currentLanguage === 'th' ? 'วันที่ทดสอบ' : 'Test Date'}</th>
+                                <th>${currentLanguage === 'th' ? 'คณะอันดับ 1' : 'Top Faculty'}</th>
+                                <th>${currentLanguage === 'th' ? 'มหาวิทยาลัย' : 'University'}</th>
+                                <th>${currentLanguage === 'th' ? 'อันดับไทย' : 'Thai Rank'}</th>
+                                <th>${currentLanguage === 'th' ? 'บุคลิก RIASEC' : 'RIASEC Types'}</th>
+                                <th>${currentLanguage === 'th' ? 'การกระทำ' : 'Actions'}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recentResults.map((result, index) => `
+                                <tr>
+                                    <td>${result.timestamp}</td>
+                                    <td>${result.results[0]?.name || '-'}</td>
+                                    <td style="font-size: 0.8em;">${result.results[0]?.university || '-'}</td>
+                                    <td style="text-align: center;">#${result.results[0]?.thaiRank || '-'}</td>
+                                    <td>
+                                        <div class="riasec-indicator">
+                                            ${result.results[0]?.riasecTypes?.map(type => `
+                                                <span class="riasec-type riasec-${type.toLowerCase()}" style="font-size: 0.6em; padding: 2px 4px;">${type}</span>
+                                            `).join('') || '-'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="viewHistoryDetail(${index})" style="padding: 5px 10px; font-size: 0.8em;">
+                                            ${currentLanguage === 'th' ? 'ดู' : 'View'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h4>${currentLanguage === 'th' ? 'สถิติคณะที่ได้มากที่สุด' : 'Most Frequent Faculties'}</h4>
+                    <div class="stats-grid">
+                        ${getFacultyStats().map(stat => `
+                            <div class="stat-card">
+                                <div style="font-size: 1.2em; font-weight: bold; color: #4facfe;">${stat.name}</div>
+                                <div class="stat-number">${stat.count}</div>
+                                <div style="color: #666; font-size: 0.9em;">${currentLanguage === 'th' ? 'ครั้ง' : 'times'}</div>
+                                <div style="font-size: 0.8em; color: #999; margin-top: 5px;">${stat.university}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <h4>${currentLanguage === 'th' ? 'การกระจายบุคลิก RIASEC ของคุณ' : 'Your RIASEC Personality Distribution'}</h4>
+                    <div class="stats-grid">
+                        ${getRiasecStats().map(stat => `
+                            <div class="stat-card">
+                                <div class="riasec-indicator" style="justify-content: center; margin-bottom: 10px;">
+                                    <span class="riasec-type riasec-${stat.type.toLowerCase()}">${stat.type}</span>
+                                </div>
+                                <div class="stat-number">${stat.percentage}%</div>
+                                <div style="color: #666; font-size: 0.9em;">${stat.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getFacultyStats() {
+            const stats = {};
+
+            quizResults.forEach(result => {
+                const topFaculty = result.results[0];
+                if (topFaculty) {
+                    const key = topFaculty.name;
+                    if (!stats[key]) {
+                        stats[key] = {
+                            name: topFaculty.name,
+                            university: topFaculty.university,
+                            count: 0
+                        };
+                    }
+                    stats[key].count++;
+                }
+            });
+
+            return Object.values(stats)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 3);
+        }
+
+        function getRiasecStats() {
+            const riasecNames = {
+                th: {
+                    R: 'Realistic (นักปฏิบัติ)',
+                    I: 'Investigative (นักวิจัย)',
+                    A: 'Artistic (นักศิลป์)',
+                    S: 'Social (นักสังคม)',
+                    E: 'Enterprising (นักธุรกิจ)',
+                    C: 'Conventional (นักระเบียบ)'
+                },
+                en: {
+                    R: 'Realistic (Doer)',
+                    I: 'Investigative (Thinker)',
+                    A: 'Artistic (Creator)',
+                    S: 'Social (Helper)',
+                    E: 'Enterprising (Persuader)',
+                    C: 'Conventional (Organizer)'
+                }
+            };
+
+            const totalAnswers = quizResults.length * (facultyData[currentLanguage].questions.length || 6);
+            const riasecCounts = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+
+            quizResults.forEach(result => {
+                if (result.results[0] && result.results[0].riasecProfile) {
+                    Object.entries(result.results[0].riasecProfile).forEach(([type, count]) => {
+                        riasecCounts[type] += count;
+                    });
+                }
+            });
+
+            return Object.entries(riasecCounts)
+                .map(([type, count]) => ({
+                    type,
+                    name: riasecNames[currentLanguage][type],
+                    count,
+                    percentage: totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0
+                }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 4);
+        }
+
+        function loadFavorites() {
+            const container = document.getElementById('favoritesContainer');
+
+            if (favoriteResults.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⭐</div>
+                        <p>${currentLanguage === 'th' ? 'ยังไม่มีคณะในรายการโปรด' : 'No faculties in favorites yet'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <h3>${currentLanguage === 'th' ? 'คณะในรายการโปรด' : 'Favorite Faculties'}</h3>
+                <div class="favorites-grid">
+                    ${favoriteResults.map(faculty => `
+                        <div class="favorite-card">
+                            <span class="favorite-star" onclick="toggleFavorite('${faculty.id}')">⭐</span>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <h4>${faculty.name}</h4>
+                                <span class="university-rank" style="font-size: 0.7em;">#${faculty.thaiRank}</span>
+                            </div>
+                            <div style="font-size: 0.9em; color: #666; margin-bottom: 8px;">${faculty.university}</div>
+                            <p style="margin-bottom: 10px;">${faculty.description}</p>
+                            
+                            ${faculty.riasecTypes ? `
+                                <div class="riasec-indicator" style="margin-bottom: 10px;">
+                                    ${faculty.riasecTypes.map(type => `
+                                        <span class="riasec-type riasec-${type.toLowerCase()}" style="font-size: 0.7em;">${type}</span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            <div style="margin: 10px 0;">
+                                <strong>${currentLanguage === 'th' ? 'อาชีพ' : 'Careers'}:</strong><br>
+                                ${faculty.career.slice(0, 3).join(', ')}
+                            </div>
+                            <div style="margin: 10px 0;">
+                                <strong>${currentLanguage === 'th' ? 'เงินเดือนเฉลี่ย' : 'Average Salary'}:</strong><br>
+                                ${faculty.salary}
+                            </div>
+                            <div style="margin: 10px 0;">
+                                <a href="${faculty.tcasLink}" target="_blank" class="tcas-link" style="font-size: 0.9em;">
+                                    📋 ${currentLanguage === 'th' ? 'ดูข้อมูล myTCAS' : 'View myTCAS Info'}
+                                </a>
+                            </div>
+                            <div style="font-size: 0.8em; color: #666; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                                ${currentLanguage === 'th' ? 'เพิ่มเมื่อ' : 'Added on'}: ${faculty.timestamp}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // Add active class to selected tab
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Load content based on tab
+            switch (tabName) {
+                case 'results':
+                    loadHistory();
+                    break;
+                case 'compare':
+                    loadComparison();
+                    break;
+                case 'favorites':
+                    loadFavorites();
+                    break;
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            document.getElementById('nextBtn').classList.remove('hidden');
+            document.getElementById('showResultsBtn').classList.add('hidden');
+            document.getElementById('progressFill').style.width = '0%';
+            loadQuestions();
+            updatePathbotSpeech('greeting');
+        }
+
+        function saveToStorage(key, data) {
+            // Simulate local storage with in-memory storage
+            window[key] = JSON.stringify(data);
+        }
+
+        function loadFromStorage(key) {
+            // Simulate loading from local storage
+            return window[key] ? JSON.parse(window[key]) : [];
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Add RIASEC theory explanation
+        function showRiasecInfo() {
+            const riasecInfo = {
+                th: `ทฤษฎี RIASEC แบ่งบุคลิกออกเป็น 6 ประเภท:
+
+R - Realistic (นักปฏิบัติ): ชอบทำงานด้วยมือ แก้ปัญหาจริง
+I - Investigative (นักวิจัย): ชอบวิเคราะห์ ทดลอง ค้นคว้า  
+A - Artistic (นักศิลป์): ชอบสร้างสรรค์ แสดงออก ศิลปะ
+S - Social (นักสังคม): ชอบช่วยเหลือ สอน ดูแลผู้อื่น
+E - Enterprising (นักธุรกิจ): ชอบเป็นผู้นำ จัดการ โน้มน้าว
+C - Conventional (นักระเบียบ): ชอบความเป็นระเบียบ รายละเอียด`,
+                en: `RIASEC Theory divides personality into 6 types:
+
+R - Realistic (Doer): Likes hands-on work and practical problem solving
+I - Investigative (Thinker): Likes to analyze, experiment, and research
+A - Artistic (Creator): Likes to create, express, and make art
+S - Social (Helper): Likes to help, teach, and care for others  
+E - Enterprising (Persuader): Likes to lead, manage, and persuade
+C - Conventional (Organizer): Likes organization and attention to detail`
+            };
+
+            alert(riasecInfo[currentLanguage]);
+        }
+
+        // Add some CSS animations for better UX
+        const additionalStyles = `
+            .option:active {
+                transform: scale(0.95);
+            }
+            
+            .btn:active {
+                transform: scale(0.95);
+            }
+            
+            .pathbot:active {
+                transform: scale(0.9) !important;
+            }
+            
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            
+            .favorite-star:hover {
+                animation: pulse 0.3s ease;
+            }
+            
+            .result-card {
+                transition: transform 0.3s ease;
+            }
+            
+            .result-card:hover {
+                transform: translateY(-2px);
+            }
+            
+            .similar-faculty-tag:active {
+                transform: scale(0.95);
+            }
+            
+            .history-item:hover {
+                transform: translateX(3px);
+                transition: transform 0.3s ease;
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-3px);
+                transition: transform 0.3s ease;
+            }
+
+            .tcas-link:active {
+                transform: scale(0.95);
+            }
+
+            .riasec-badge:hover {
+                cursor: pointer;
+                background: rgba(79, 172, 254, 0.3);
+            }
+        `;
+
+        const styleElement = document.createElement('style');
+        styleElement.textContent = additionalStyles;
+        document.head.appendChild(styleElement);
+
+        // Add click event for RIASEC badge to show info
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('riasec-badge')) {
+                showRiasecInfo();
+            }
+        });
+        window.addEventListener("load", () => {
+            const loadingScreen = document.getElementById("loadingScreen");
+            setTimeout(() => {
+                loadingScreen.classList.add("fade-out");
+            }, 3000); // แสดง 3 วินาที
+        });
+    </script>
+</body>
+
+</html>
